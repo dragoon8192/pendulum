@@ -1,0 +1,53 @@
+name:                single-pendulum
+version:             0.1.0.0
+github:              "dragoon8192/single-pendulum"
+license:             BSD3
+author:              "DRAGOON8192"
+maintainer:          "dragoon8192@gmail.com"
+copyright:           "2021 DRAGOON8192"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/dragoon8192/single-pendulum#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- gloss
+default-extensions:
+  - DeriveFunctor
+  - GADTs
+  - Arrows
+
+library:
+  source-dirs: src
+
+executables:
+  single-pendulum-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - single-pendulum
+
+tests:
+  single-pendulum-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - single-pendulum
