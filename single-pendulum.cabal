@@ -36,6 +36,7 @@ library
       GADTs
       Arrows
       MultiParamTypeClasses
+      QuantifiedConstraints
   build-depends:
       base >=4.7 && <5
     , gloss
@@ -53,6 +54,7 @@ executable single-pendulum-exe
       GADTs
       Arrows
       MultiParamTypeClasses
+      QuantifiedConstraints
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -73,6 +75,7 @@ test-suite single-pendulum-test
       GADTs
       Arrows
       MultiParamTypeClasses
+      QuantifiedConstraints
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5

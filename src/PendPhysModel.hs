@@ -11,10 +11,10 @@ data Pendulum q p = Pendulum {
                 pTheta  :: p
                   }
 
-instance Functor (Pendulum a) where
+instance Functor (Pendulum q) where
   fmap f (Pendulum m l q p) = Pendulum m l q (f p)
 instance Functor2 Pendulum where
-  fmap2 f (Pendulum m l q p) = Pendulum m l (f q) p
+  fmap1 f (Pendulum m l q p) = Pendulum m l (f q) p
 
 instance HamiltonianModel Pendulum Double Double where
   hamiltonian (Pendulum m l q p) = p * p / (2.0 * m * l) - m * 9.8 * l * cos q
@@ -23,8 +23,10 @@ instance HamiltonianModel Pendulum Double Double where
   addQ dq (Pendulum m l q p) = Pendulum m l (q .+^ dq) p
   addP dp (Pendulum m l q p) = Pendulum m l q (p .+^ dp)
 
-class Functor2 f where
-  fmap2 :: (a -> a') -> f a b -> f a' b
+class (forall a . Functor (f a)) => Functor2 f where
+  fmap1 :: (a -> a') -> f a b -> f a' b
+  fmap2 :: (b -> b') -> f a b -> f a b'
+  fmap2 = fmap
 
 class (AffineSpace q, AffineSpace p) => HamiltonianModel a q p where
   hamiltonian :: a q p -> Double

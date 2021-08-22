@@ -28,6 +28,8 @@ default-extensions:
   - GADTs
   - Arrows
   - MultiParamTypeClasses
+    ##- RankNTypes
+  - QuantifiedConstraints
 
 library:
   source-dirs: src
