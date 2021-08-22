@@ -22,10 +22,12 @@ description:         Please see the README on GitHub at <https://github.com/drag
 dependencies:
 - base >= 4.7 && < 5
 - gloss
+- vector-space
 default-extensions:
   - DeriveFunctor
   - GADTs
   - Arrows
+  - MultiParamTypeClasses
 
 library:
   source-dirs: src
