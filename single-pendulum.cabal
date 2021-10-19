@@ -69,6 +69,7 @@ test-suite single-pendulum-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      PendPhysModelSpec
       Paths_single_pendulum
   hs-source-dirs:
       test
@@ -82,6 +83,7 @@ test-suite single-pendulum-test
   build-depends:
       base >=4.7 && <5
     , gloss
+    , hspec
     , mtl
     , single-pendulum
     , vector-space

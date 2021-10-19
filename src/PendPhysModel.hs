@@ -1,4 +1,7 @@
-module PendPhysModel () where
+module PendPhysModel (
+  Pendulum(Pendulum,mass,length),
+  symplecticEvol,
+)where
 import Data.AffineSpace
 import Data.VectorSpace
 import Control.Arrow
@@ -12,6 +15,7 @@ data Pendulum a = Pendulum {
                 length  :: Double,
                 datas    :: a
                 }
+                deriving (Show,Eq)
 
 --newtype Pendulum a = Reader (Double,Double) a
 --mass :: Pendulum Double
