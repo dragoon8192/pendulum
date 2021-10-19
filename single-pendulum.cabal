@@ -40,6 +40,7 @@ library
   build-depends:
       base >=4.7 && <5
     , gloss
+    , mtl
     , vector-space
   default-language: Haskell2010
 
@@ -59,6 +60,7 @@ executable single-pendulum-exe
   build-depends:
       base >=4.7 && <5
     , gloss
+    , mtl
     , single-pendulum
     , vector-space
   default-language: Haskell2010
@@ -80,6 +82,7 @@ test-suite single-pendulum-test
   build-depends:
       base >=4.7 && <5
     , gloss
+    , mtl
     , single-pendulum
     , vector-space
   default-language: Haskell2010

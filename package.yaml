@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - gloss
 - vector-space
+- mtl
 default-extensions:
   - DeriveFunctor
   - GADTs
