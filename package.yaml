@@ -31,6 +31,8 @@ default-extensions:
   - MultiParamTypeClasses
     ##- RankNTypes
   - QuantifiedConstraints
+  - FlexibleContexts
+  - TypeFamilies
 
 library:
   source-dirs: src

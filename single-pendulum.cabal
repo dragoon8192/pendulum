@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      PendlumMonad
       PendPhysModel
   other-modules:
       Paths_single_pendulum
@@ -37,6 +38,8 @@ library
       Arrows
       MultiParamTypeClasses
       QuantifiedConstraints
+      FlexibleContexts
+      TypeFamilies
   build-depends:
       base >=4.7 && <5
     , gloss
@@ -56,6 +59,8 @@ executable single-pendulum-exe
       Arrows
       MultiParamTypeClasses
       QuantifiedConstraints
+      FlexibleContexts
+      TypeFamilies
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -69,6 +74,7 @@ test-suite single-pendulum-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      PendlumMonadSpec
       PendPhysModelSpec
       Paths_single_pendulum
   hs-source-dirs:
@@ -79,6 +85,8 @@ test-suite single-pendulum-test
       Arrows
       MultiParamTypeClasses
       QuantifiedConstraints
+      FlexibleContexts
+      TypeFamilies
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5

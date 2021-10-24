@@ -8,6 +8,7 @@ import Control.Arrow
 import Data.Functor
 import Control.Monad
 import Control.Monad.Reader
+import Control.Monad.State
 
 type DTime = Double
 data Pendulum a = Pendulum {
@@ -16,11 +17,6 @@ data Pendulum a = Pendulum {
                 datas    :: a
                 }
                 deriving (Show,Eq)
-
---newtype Pendulum a = Reader (Double,Double) a
---mass :: Pendulum Double
---mass = fst =< ask
---length = snd =< ask
 
 instance Functor Pendulum where
   fmap f (Pendulum m l a) = Pendulum m l (f a)
