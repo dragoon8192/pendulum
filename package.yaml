@@ -33,6 +33,7 @@ default-extensions:
   - QuantifiedConstraints
   - FlexibleContexts
   - TypeFamilies
+  - FlexibleInstances
 
 library:
   source-dirs: src

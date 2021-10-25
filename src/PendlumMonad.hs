@@ -9,20 +9,19 @@ import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.State
 
-type PhaseSpace a = State (a, a)
-getQ :: PhaseSpace a a
-getQ = gets fst
-getP :: PhaseSpace a a
-getP = gets snd
-addQ :: (AffineSpace a) => Diff a -> PhaseSpace a ()
-addQ dq = modify $ first (.+^ dq)
-addP :: (AffineSpace a) => Diff a -> PhaseSpace a ()
-addP dp = modify $ second (.+^ dp)
---evolQ :: (AffineSpace a, da ~ Diff a, VectorSpace da, dt ~ Scalar da) => dt -> da -> PhaseSpace a ()
-evolQ :: (AffineSpace a, VectorSpace (Diff a)) => Scalar (Diff a) -> Diff a -> PhaseSpace a ()
-evolQ dt dqdt = addQ $ dqdt ^* dt
-evolP :: (AffineSpace a, VectorSpace (Diff a)) => Scalar (Diff a) -> Diff a -> PhaseSpace a ()
-evolP dt dpdt = addP $ dpdt ^* dt
+--type PhaseSpace a = State (a, a)
+--getQ :: PhaseSpace a a
+--getQ = gets fst
+--getP :: PhaseSpace a a
+--getP = gets snd
+--addQ :: (AffineSpace a) => Diff a -> PhaseSpace a ()
+--addQ dq = modify $ first (.+^ dq)
+--addP :: (AffineSpace a) => Diff a -> PhaseSpace a ()
+--addP dp = modify $ second (.+^ dp)
+--evolQ :: (AffineSpace a, VectorSpace (Diff a)) => Scalar (Diff a) -> Diff a -> PhaseSpace a ()
+--evolQ dt dqdt = addQ $ dqdt ^* dt
+--evolP :: (AffineSpace a, VectorSpace (Diff a)) => Scalar (Diff a) -> Diff a -> PhaseSpace a ()
+--evolP dt dpdt = addP $ dpdt ^* dt
 
 class (Monad s, AffineSpace (Q s), AffineSpace (P s), VectorSpace (Diff (Q s)), VectorSpace (Diff (P s)), DTime s ~ Scalar (Diff (P s)), DTime s ~ Scalar (Diff (Q s))) => PhysSystem s where
   type DTime s :: *
@@ -39,16 +38,26 @@ class (Monad s, AffineSpace (Q s), AffineSpace (P s), VectorSpace (Diff (Q s)), 
     evolQ dt
     evolP dt
 
-type Pendulum a = ReaderT (Double,Double) (State (Double,Double)) a
+type Pendulum = ReaderT (Double,Double) (State (Double,Double))
 runPendulum :: Pendulum a -> Double -> Double -> Double -> Double -> (a, (Double, Double))
 runPendulum pendA m l q p = runState (runReaderT pendA (m,l)) (q,p)
 execPendulum :: Pendulum a -> Double -> Double -> Double -> Double -> (Double, Double)
 execPendulum pendA m l q p = execState (runReaderT pendA (m,l)) (q,p)
-mass :: Pendulum Double
-mass = asks fst
-length :: Pendulum Double
-length = asks snd
-q :: Pendulum Double
-q = lift $ gets fst
-p :: Pendulum Double
-p = lift $ gets snd
+getMass :: Pendulum Double
+getMass = asks $ fst
+getLength :: Pendulum Double
+getLength = asks $ snd
+
+instance PhysSystem Pendulum where
+  type DTime Pendulum = Double
+  type Q Pendulum = Double
+  type P Pendulum = Double
+  getQ = lift . gets $ fst
+  getP = lift . gets $ snd
+  getDqDt = dqdt <$> getP <*> getMass <*> getLength
+    where
+      dqdt p m l = p / (m * l * l)
+  getDpDt = dpdt <$> getQ <*> getMass <*> getLength
+    where
+      dpdt q m l = - m * 9.8 * l * sin q
+
