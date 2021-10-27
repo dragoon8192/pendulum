@@ -25,17 +25,17 @@ dependencies:
 - vector-space
 - mtl
 default-extensions:
-  - DeriveFunctor
   - GADTs
   - Arrows
-  - MultiParamTypeClasses
-    ##- RankNTypes
-  - QuantifiedConstraints
   - FlexibleContexts
   - TypeFamilies
-  - FlexibleInstances
-  - UndecidableInstances
   - GeneralizedNewtypeDeriving
+  ##- DeriveFunctor
+  ##- MultiParamTypeClasses
+  ##- RankNTypes
+  ##- QuantifiedConstraints
+  ##- FlexibleInstances
+  ##- UndecidableInstances
 library:
   source-dirs: src
 

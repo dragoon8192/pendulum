@@ -33,15 +33,10 @@ library
   hs-source-dirs:
       src
   default-extensions:
-      DeriveFunctor
       GADTs
       Arrows
-      MultiParamTypeClasses
-      QuantifiedConstraints
       FlexibleContexts
       TypeFamilies
-      FlexibleInstances
-      UndecidableInstances
       GeneralizedNewtypeDeriving
   build-depends:
       base >=4.7 && <5
@@ -57,15 +52,10 @@ executable single-pendulum-exe
   hs-source-dirs:
       app
   default-extensions:
-      DeriveFunctor
       GADTs
       Arrows
-      MultiParamTypeClasses
-      QuantifiedConstraints
       FlexibleContexts
       TypeFamilies
-      FlexibleInstances
-      UndecidableInstances
       GeneralizedNewtypeDeriving
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
@@ -85,15 +75,10 @@ test-suite single-pendulum-test
   hs-source-dirs:
       test
   default-extensions:
-      DeriveFunctor
       GADTs
       Arrows
-      MultiParamTypeClasses
-      QuantifiedConstraints
       FlexibleContexts
       TypeFamilies
-      FlexibleInstances
-      UndecidableInstances
       GeneralizedNewtypeDeriving
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
