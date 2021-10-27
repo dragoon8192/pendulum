@@ -3,11 +3,6 @@ module PendlumMonad (
   module PhysicalSystem
 )where
 import PhysicalSystem
-    ( PhysicalSystem,
-      getPhase,
-      getDiffPhase,
-      symplecticEvol1,
-      runPhysicalSystem )
 
 type Pendulum = PhysicalSystem Double Double (Double,Double) Double Double
 runPendulum :: Pendulum x -> (Double, Double) -> (Double, Double) -> (x, (Double, Double))
