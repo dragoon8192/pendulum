@@ -8,13 +8,20 @@ import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.State
 
-class (MonadState (Q s,P s) s, AffineSpace (Q s), AffineSpace (P s), VectorSpace (Diff (Q s)), VectorSpace (Diff (P s)), DTime s ~ Scalar (Diff (P s)), DTime s ~ Scalar (Diff (Q s)))
+class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s), Data s -> (Q s, P s) -> Diff (P s)),Data s) s, AffineSpace (Q s), AffineSpace (P s), VectorSpace (Diff (Q s)), VectorSpace (Diff (P s)), DTime s ~ Scalar (Diff (P s)), DTime s ~ Scalar (Diff (Q s)))
   => PhysSystem s where
   type DTime s :: *
+  type Data s :: *
   type Q s :: *
   type P s :: *
 
+  askDiffFunc :: s (Data s -> (Q s, P s) -> Diff (Q s), Data s -> (Q s, P s) -> Diff (P s))
+  askDiffFunc = asks fst
+  askData :: s (Data s)
+  askData = asks snd
+
   getPhase :: s (Q s, P s)
+  getPhase = get
   getQ :: s (Q s)
   getQ = fmap fst getPhase
   getP :: s (P s)
@@ -42,27 +49,26 @@ class (MonadState (Q s,P s) s, AffineSpace (Q s), AffineSpace (P s), VectorSpace
     evolP dt
 
 newtype PhysicalSystem d q p x = PhysicalSystem (ReaderT ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p), d) (State (q, p)) x)
-  deriving (Functor, Applicative, Monad, MonadState (q,p))
-    --MonadReader ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p),d))
+  deriving (Functor, Applicative, Monad, MonadState (q,p), MonadReader ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p),d))
 runPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (x, (q, p))
 runPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
   = runState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
 execPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (q, p)
 execPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
   = execState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
-askData :: (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p)) => PhysicalSystem d q p d
-askData = PhysicalSystem $ asks snd
-askDiffFunc :: (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p))
-  => PhysicalSystem d q p (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p)
-askDiffFunc = PhysicalSystem $ asks fst
+--askData :: (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p)) => PhysicalSystem d q p d
+--askData = PhysicalSystem $ asks snd
+--askDiffFunc :: (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p))
+--  => PhysicalSystem d q p (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p)
+--askDiffFunc = PhysicalSystem $ asks fst
 
 instance (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p), Scalar (Diff q) ~ Scalar (Diff p))
   => PhysSystem (PhysicalSystem d q p) where
   type DTime (PhysicalSystem d q p) = Scalar (Diff q)
+  type Data (PhysicalSystem d q p) = d
   type Q (PhysicalSystem d q p) = q
   type P (PhysicalSystem d q p) = p
 
-  getPhase = get
   getDiffPhase = eval2 <$> askDiffFunc <*> askData <*> getPhase
     where
       eval2 (f,g) d pq = (f d pq, g d pq)
