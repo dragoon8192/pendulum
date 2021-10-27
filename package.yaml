@@ -34,7 +34,8 @@ default-extensions:
   - FlexibleContexts
   - TypeFamilies
   - FlexibleInstances
-
+  - UndecidableInstances
+  - GeneralizedNewtypeDeriving
 library:
   source-dirs: src
 
