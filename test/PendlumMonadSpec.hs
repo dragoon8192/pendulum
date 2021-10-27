@@ -4,9 +4,13 @@ import PendlumMonad
 
 spec :: Spec
 spec = do
-  let pend = Pendulum 1.0 1.0 (pi/6,0) :: Pendulum (Double,Double)
---  describe "Pendulum 1.0 1.0 (pi/6,0)" $ do
---    it "is equal to itself" $
---      pend `shouldBe` Pendulum 1.0 1.0 (pi/6,0)
---    it "deberops with 0.1 sec" $
---      symplecticEvol 0.1 pend `shouldBe` Pendulum 1.0 1.0 (pi/6 - 0.49 * 0.1, -0.49)
+  let pend = runPendulum getPhase (1.0, 1.0) (pi/6.0, 0)
+  let diff = runPendulum getDiffPhase (1.0, 1.0) (pi/6.0, 0)
+  let pend2 = runPendulum (symplecticEvol1 0.1 >> getPhase) (1.0, 1.0) (pi/6.0, 0)
+  describe "runPendulum getPhase (1.0, 1.0) (pi/6.0, 0)" $ do
+    it "is equal to itself" $
+      pend `shouldBe` ((pi/6.0, 0), (pi/6.0, 0))
+    it "'s diffPhase = (0, -0.49)" $
+      diff `shouldBe` ((0, -0.49), (pi/6.0, 0))
+    it "deberops with 'symplecticEvol1 0.1' " $
+      pend2 `shouldBe` ((pi/6 - 0.49 * 0.1, -0.49), (pi/6 - 0.49 * 0.1, -0.49))

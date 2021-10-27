@@ -1,5 +1,7 @@
 module PendlumMonad (
-  Pendulum,
+  Pendulum,runPendulum,
+  getPhase,getDiffPhase,
+  symplecticEvol1
 )where
 import Data.AffineSpace
 import Data.VectorSpace
@@ -9,7 +11,7 @@ import Control.Monad.Reader
 import Control.Monad.State
 
 class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s), Data s -> (Q s, P s) -> Diff (P s)),Data s) s, AffineSpace (Q s), AffineSpace (P s), VectorSpace (Diff (Q s)), VectorSpace (Diff (P s)), DTime s ~ Scalar (Diff (P s)), DTime s ~ Scalar (Diff (Q s)))
-  => PhysSystem s where
+  => PhysicalSystemClass s where
   type DTime s :: *
   type Data s :: *
   type Q s :: *
@@ -49,15 +51,15 @@ class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s),
 
   symplecticEvol1 :: DTime s -> s ()
   symplecticEvol1 dt = do
-    evolQ dt
     evolP dt
+    evolQ dt
 
-newtype PhysicalSystem d q p x = PhysicalSystem (ReaderT ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p), d) (State (q, p)) x)
-  deriving (Functor, Applicative, Monad, MonadState (q,p), MonadReader ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p), d))
-runPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (x, (q, p))
+newtype PhysicalSystem dq dp d q p x = PhysicalSystem (ReaderT ((d -> (q, p) -> dq, d -> (q, p) -> dp), d) (State (q, p)) x)
+  deriving (Functor, Applicative, Monad, MonadState (q,p),  MonadReader ((d -> (q, p) -> dq, d -> (q, p) -> dp), d))
+runPhysicalSystem :: PhysicalSystem (Diff q) (Diff p) d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (x, (q, p))
 runPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
   = runState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
-execPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (q, p)
+execPhysicalSystem :: PhysicalSystem (Diff q) (Diff p) d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (q, p)
 execPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
   = execState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
 --askData :: (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p)) => PhysicalSystem d q p d
@@ -65,19 +67,18 @@ execPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
 --askDiffFunc :: (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p))
 --  => PhysicalSystem d q p (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p)
 --askDiffFunc = PhysicalSystem $ asks fst
+--
+--instance (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p) , dq ~ Diff q, dp ~ Diff p) =>  MonadReader ((d -> (q, p) -> dq, d -> (q, p) -> dp), d) (PhysicalSystem d q p)
 
-instance (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p), Scalar (Diff q) ~ Scalar (Diff p))
-  => PhysSystem (PhysicalSystem d q p) where
-  type DTime (PhysicalSystem d q p) = Scalar (Diff q)
-  type Data (PhysicalSystem d q p) = d
-  type Q (PhysicalSystem d q p) = q
-  type P (PhysicalSystem d q p) = p
+instance (AffineSpace q, AffineSpace p, dq ~ Diff q, dp ~ Diff p, VectorSpace dq, VectorSpace dp, Scalar dq ~ Scalar dp)
+  => PhysicalSystemClass (PhysicalSystem dq dp d q p) where
+  type DTime (PhysicalSystem dq dp d q p) = Scalar dq
+  type Data (PhysicalSystem dq dp d q p) = d
+  type Q (PhysicalSystem dq dp d q p) = q
+  type P (PhysicalSystem dq dp d q p) = p
 
---  getDiffPhase = eval2 <$> askDiffFunc <*> askData <*> getPhase
---    where
---      eval2 (f,g) d pq = (f d pq, g d pq)
-
-type Pendulum = PhysicalSystem (Double,Double) Double Double
+type Pendulum = PhysicalSystem Double Double (Double,Double) Double Double
+runPendulum :: Pendulum x -> (Double, Double) -> (Double, Double) -> (x, (Double, Double))
 runPendulum system = runPhysicalSystem system (dqdt, dpdt)
   where
     dqdt (m, l) (q, p) = p / (m * l * l)
