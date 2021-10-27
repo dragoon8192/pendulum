@@ -33,8 +33,6 @@ library
   hs-source-dirs:
       src
   default-extensions:
-      GADTs
-      Arrows
       FlexibleContexts
       TypeFamilies
       GeneralizedNewtypeDeriving
@@ -55,8 +53,6 @@ executable single-pendulum-exe
   hs-source-dirs:
       app
   default-extensions:
-      GADTs
-      Arrows
       FlexibleContexts
       TypeFamilies
       GeneralizedNewtypeDeriving
@@ -81,8 +77,6 @@ test-suite single-pendulum-test
   hs-source-dirs:
       test
   default-extensions:
-      GADTs
-      Arrows
       FlexibleContexts
       TypeFamilies
       GeneralizedNewtypeDeriving

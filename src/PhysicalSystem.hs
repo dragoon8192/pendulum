@@ -9,6 +9,7 @@ import Data.AffineSpace ( AffineSpace((.+^), Diff) )
 import Data.VectorSpace ( VectorSpace(..) )
 import Control.Arrow ( Arrow(second, first) )
 import Control.Monad.Reader
+    ( asks, ReaderT(..), MonadReader(local, ask) )
 import Control.Monad.State
     ( modify, execState, runState, MonadState(get), State )
 
@@ -56,20 +57,12 @@ class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s),
     evolQ dt
 
 newtype PhysicalSystem d q p x = PhysicalSystem (ReaderT ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p), d) (State (q, p)) x)
-  deriving (Functor, Applicative, Monad, MonadState (q,p)
-  --,  MonadReader ((d -> (q, p) -> dq, d -> (q, p) -> dp), d)
-  )
+  deriving (Functor, Applicative, Monad, MonadState (q,p))
+
 instance (AffineSpace q, AffineSpace p, dq ~ Diff q, dp ~ Diff p)
   => MonadReader ((d -> (q, p) -> dq, d -> (q, p) -> dp), d) (PhysicalSystem d q p) where
   ask = PhysicalSystem ask
   local f (PhysicalSystem x) = PhysicalSystem $ local f x
-
-runPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (x, (q, p))
-runPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
-  = runState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
-execPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (q, p)
-execPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
-  = execState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
 
 instance (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p), Scalar (Diff q) ~ Scalar (Diff p))
   => PhysicalSystemClass (PhysicalSystem d q p) where
@@ -77,3 +70,10 @@ instance (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff 
   type Data (PhysicalSystem d q p) = d
   type Q (PhysicalSystem d q p) = q
   type P (PhysicalSystem d q p) = p
+
+runPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (x, (q, p))
+runPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
+  = runState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
+execPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (q, p)
+execPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
+  = execState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
