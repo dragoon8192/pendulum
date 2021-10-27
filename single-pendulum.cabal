@@ -26,7 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
-      PendlumMonad
+      Pendulum
       PhysicalSystem
   other-modules:
       Paths_single_pendulum
@@ -80,7 +80,7 @@ test-suite single-pendulum-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      PendlumMonadSpec
+      PendulumSpec
       Paths_single_pendulum
   hs-source-dirs:
       test

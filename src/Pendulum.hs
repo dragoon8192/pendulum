@@ -1,4 +1,4 @@
-module PendlumMonad (
+module Pendulum (
   Pendulum,runPendulum,
   module PhysicalSystem
 )where

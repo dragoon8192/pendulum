@@ -1,6 +1,6 @@
-module PendlumMonadSpec (spec) where
+module PendulumSpec (spec) where
 import Test.Hspec
-import PendlumMonad
+import Pendulum
 
 spec :: Spec
 spec = do
