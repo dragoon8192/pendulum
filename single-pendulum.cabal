@@ -27,7 +27,6 @@ library
   exposed-modules:
       Lib
       PendlumMonad
-      PendPhysModel
       PhysicalSystem
   other-modules:
       Paths_single_pendulum
@@ -82,7 +81,6 @@ test-suite single-pendulum-test
   main-is: Spec.hs
   other-modules:
       PendlumMonadSpec
-      PendPhysModelSpec
       Paths_single_pendulum
   hs-source-dirs:
       test
