@@ -30,12 +30,12 @@ default-extensions:
   - FlexibleContexts
   - TypeFamilies
   - GeneralizedNewtypeDeriving
+  - FlexibleInstances
+  - MultiParamTypeClasses
+  - UndecidableInstances
   ##- DeriveFunctor
-  ##- MultiParamTypeClasses
   ##- RankNTypes
   ##- QuantifiedConstraints
-  ##- FlexibleInstances
-  ##- UndecidableInstances
 library:
   source-dirs: src
 

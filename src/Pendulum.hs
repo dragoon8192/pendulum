@@ -4,7 +4,7 @@ module Pendulum (
 )where
 import PhysicalSystem
 
-type Pendulum = PhysicalSystem Double Double (Double,Double) Double Double
+type Pendulum = PhysicalSystem (Double,Double) Double Double
 runPendulum :: Pendulum x -> (Double, Double) -> (Double, Double) -> (x, (Double, Double))
 runPendulum system = runPhysicalSystem system (dqdt, dpdt)
   where
