@@ -28,6 +28,7 @@ library
       Lib
       PendlumMonad
       PendPhysModel
+      PhysicalSystem
   other-modules:
       Paths_single_pendulum
   hs-source-dirs:
