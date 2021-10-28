@@ -5,8 +5,8 @@ module Pendulum (
 import PhysicalSystem
 
 type Pendulum = PhysicalSystem (Double,Double) Double Double
-runPendulum :: Pendulum x -> (Double, Double) -> (Double, Double) -> x
-runPendulum system = runPhysicalSystem system (dqdt, dpdt)
+runPendulum :: (Double, Double) -> (Double, Double) -> Pendulum x -> x
+runPendulum = runPhysicalSystem (dqdt, dpdt)
   where
     dqdt (m, l) (q, p) = p / (m * l * l)
     dpdt (m, l) (q, p) = - m * 9.8 * l * sin q

@@ -74,8 +74,8 @@ instance (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff 
   type Q (PhysicalSystem d q p) = q
   type P (PhysicalSystem d q p) = p
 
-runPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> x
-runPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
+runPhysicalSystem :: (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystem d q p x -> x
+runPhysicalSystem (dqdtFunc, dpdtFunc) d (q, p) (PhysicalSystem system)
   = evalState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
 --execPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (q, p)
 --execPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
