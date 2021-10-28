@@ -8,6 +8,10 @@ import Data.Functor.Identity
 
 type PendulumT m = PhysicalSystemT (Double,Double) Double Double m
 type Pendulum = PendulumT Identity
+
+--pendulum :: (Monad m) => ((Double, Double) -> x) -> PendulumT m x
+--pendulum 
+
 runPendulumT :: (Monad m) => (Double, Double) -> (Double, Double) -> PendulumT m x -> m x
 runPendulumT = runPhysicalSystemT (dqdt, dpdt)
   where

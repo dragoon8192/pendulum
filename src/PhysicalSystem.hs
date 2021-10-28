@@ -1,7 +1,9 @@
 module PhysicalSystem (
   PhysicalSystem,
-  PhysicalSystemT,
   runPhysicalSystem,
+  PhysicalSystemT,
+  lift,
+  physicalSystem,
   runPhysicalSystemT,
   askData,
   getPhase,
@@ -68,12 +70,20 @@ instance (Monad m, AffineSpace q, AffineSpace p, dq ~ Diff q, dp ~ Diff p)
   ask = PhysicalSystemT ask
   local f (PhysicalSystemT x) = PhysicalSystemT $ local f x
 
+instance MonadTrans (PhysicalSystemT d q p) where
+  lift mx = PhysicalSystemT . lift . lift $ mx
+
 instance (Monad m, AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p), Scalar (Diff q) ~ Scalar (Diff p))
   => PhysicalSystemClass (PhysicalSystemT d q p m) where
   type DTime (PhysicalSystemT d q p m) = Scalar (Diff q)
   type Data (PhysicalSystemT d q p m) = d
   type Q (PhysicalSystemT d q p m) = q
   type P (PhysicalSystemT d q p m) = p
+
+physicalSystem :: (Monad m, AffineSpace q, AffineSpace p, dq ~ Diff q, dp ~ Diff p) => ((d -> (q, p) -> dq, d -> (q, p) -> dp) -> d -> (q, p) -> x) -> PhysicalSystemT d q p m x
+physicalSystem f = PhysicalSystemT . ReaderT $ f2
+  where
+    f2 (dqdp , d) = state $ \qp -> (f dqdp d qp, qp)
 
 runPhysicalSystemT :: (Monad m) => (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystemT d q p m x -> m x
 runPhysicalSystemT (dqdtFunc, dpdtFunc) d (q, p) (PhysicalSystemT system)
