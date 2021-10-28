@@ -18,7 +18,7 @@ import Data.AffineSpace ( AffineSpace((.+^), Diff) )
 import Data.VectorSpace ( VectorSpace(..) )
 import Control.Arrow ( Arrow(second, first) )
 import Control.Monad.Reader
-import Control.Monad.State
+import Control.Monad.State.Strict
 import Data.Functor.Identity
 
 class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s), Data s -> (Q s, P s) -> Diff (P s)),Data s) s, AffineSpace (Q s), AffineSpace (P s), VectorSpace (Diff (Q s)), VectorSpace (Diff (P s)), DTime s ~ Scalar (Diff (P s)), DTime s ~ Scalar (Diff (Q s)))

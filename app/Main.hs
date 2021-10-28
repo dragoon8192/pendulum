@@ -10,10 +10,12 @@ window = InWindow "single-pendulum" (640, 640) (0,0)
 
 
 main :: IO ()
-main = do
-  let step = 30
-  simulate window white step init getPic evol
+main = simulate window white step init getPic evol
     where
-      init = flipRunPendulum (1.0, 1.0) (pi/6.0, 0)
-      getPic = ($! getPicture)
-      evol _ dt f s = f $ (symplecticEvol1 . realToFrac $ dt) >> s
+      step = 30
+      init = (pi/6.0, 0)
+      ml = (1.0, 1.0)
+      getPic pq = flipRunPendulum ml pq getPicture
+      evol _ dt pq = flipRunPendulum ml pq $ do
+        symplecticEvol1 . realToFrac $ dt
+        getPhase
