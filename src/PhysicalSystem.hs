@@ -1,6 +1,8 @@
 module PhysicalSystem (
   PhysicalSystem,
+  PhysicalSystemT,
   runPhysicalSystem,
+  runPhysicalSystemT,
   askData,
   getPhase,
   getQ,
@@ -12,9 +14,8 @@ import Data.AffineSpace ( AffineSpace((.+^), Diff) )
 import Data.VectorSpace ( VectorSpace(..) )
 import Control.Arrow ( Arrow(second, first) )
 import Control.Monad.Reader
-    ( asks, ReaderT(..), MonadReader(local, ask) )
 import Control.Monad.State
-    ( MonadState(get), State, modify, evalState )
+import Data.Functor.Identity
 
 class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s), Data s -> (Q s, P s) -> Diff (P s)),Data s) s, AffineSpace (Q s), AffineSpace (P s), VectorSpace (Diff (Q s)), VectorSpace (Diff (P s)), DTime s ~ Scalar (Diff (P s)), DTime s ~ Scalar (Diff (Q s)))
   => PhysicalSystemClass s where
@@ -59,24 +60,27 @@ class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s),
     evolP dt
     evolQ dt
 
-newtype PhysicalSystem d q p x = PhysicalSystem (ReaderT ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p), d) (State (q, p)) x)
+newtype PhysicalSystemT d q p m x = PhysicalSystemT (ReaderT ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p), d) (StateT (q, p) m) x)
   deriving (Functor, Applicative, Monad, MonadState (q,p))
 
-instance (AffineSpace q, AffineSpace p, dq ~ Diff q, dp ~ Diff p)
-  => MonadReader ((d -> (q, p) -> dq, d -> (q, p) -> dp), d) (PhysicalSystem d q p) where
-  ask = PhysicalSystem ask
-  local f (PhysicalSystem x) = PhysicalSystem $ local f x
+instance (Monad m, AffineSpace q, AffineSpace p, dq ~ Diff q, dp ~ Diff p)
+  => MonadReader ((d -> (q, p) -> dq, d -> (q, p) -> dp), d) (PhysicalSystemT d q p m) where
+  ask = PhysicalSystemT ask
+  local f (PhysicalSystemT x) = PhysicalSystemT $ local f x
 
-instance (AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p), Scalar (Diff q) ~ Scalar (Diff p))
-  => PhysicalSystemClass (PhysicalSystem d q p) where
-  type DTime (PhysicalSystem d q p) = Scalar (Diff q)
-  type Data (PhysicalSystem d q p) = d
-  type Q (PhysicalSystem d q p) = q
-  type P (PhysicalSystem d q p) = p
+instance (Monad m, AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpace (Diff p), Scalar (Diff q) ~ Scalar (Diff p))
+  => PhysicalSystemClass (PhysicalSystemT d q p m) where
+  type DTime (PhysicalSystemT d q p m) = Scalar (Diff q)
+  type Data (PhysicalSystemT d q p m) = d
+  type Q (PhysicalSystemT d q p m) = q
+  type P (PhysicalSystemT d q p m) = p
+
+runPhysicalSystemT :: (Monad m) => (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystemT d q p m x -> m x
+runPhysicalSystemT (dqdtFunc, dpdtFunc) d (q, p) (PhysicalSystemT system)
+  = evalStateT (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
+
+type PhysicalSystem d q p x = PhysicalSystemT d q p Identity x
 
 runPhysicalSystem :: (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystem d q p x -> x
-runPhysicalSystem (dqdtFunc, dpdtFunc) d (q, p) (PhysicalSystem system)
-  = evalState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
---execPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> (q, p)
---execPhysicalSystem (PhysicalSystem system) (dqdtFunc, dpdtFunc) d (q, p)
---  = execState (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
+runPhysicalSystem (dqdtFunc, dpdtFunc) d (q, p) system
+  = runIdentity $ runPhysicalSystemT (dqdtFunc, dpdtFunc) d (q, p) system

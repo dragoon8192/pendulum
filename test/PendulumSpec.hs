@@ -4,9 +4,8 @@ import Pendulum
 
 spec :: Spec
 spec = do
-  let pend = runPendulum getPhase (1.0, 1.0) (pi/6.0, 0)
-  let diff = runPendulum getDiffPhase (1.0, 1.0) (pi/6.0, 0)
-  let pend2 = runPendulum (symplecticEvol1 0.1 >> getPhase) (1.0, 1.0) (pi/6.0, 0)
+  let pend = runPendulum (1.0, 1.0) (pi/6.0, 0) getPhase 
+  let pend2 = runPendulum  (1.0, 1.0) (pi/6.0, 0) (symplecticEvol1 0.1 >> getPhase)
   describe "runPendulum getPhase (1.0, 1.0) (pi/6.0, 0)" $ do
     it "is equal to itself" $
       pend `shouldBe` (pi/6.0, 0)
