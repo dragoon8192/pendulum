@@ -1,10 +1,12 @@
 module PhysicalSystem (
   PhysicalSystem,
   runPhysicalSystem,
+  flipRunPhysicalSystem,
   PhysicalSystemT,
   lift,
   physicalSystem,
   runPhysicalSystemT,
+  flipRunPhysicalSystemT,
   askData,
   getPhase,
   getQ,
@@ -80,17 +82,27 @@ instance (Monad m, AffineSpace q, AffineSpace p, VectorSpace (Diff q), VectorSpa
   type Q (PhysicalSystemT d q p m) = q
   type P (PhysicalSystemT d q p m) = p
 
-physicalSystem :: (Monad m, AffineSpace q, AffineSpace p, dq ~ Diff q, dp ~ Diff p) => ((d -> (q, p) -> dq, d -> (q, p) -> dp) -> d -> (q, p) -> x) -> PhysicalSystemT d q p m x
+physicalSystem :: (Monad m, AffineSpace q, AffineSpace p)
+  => ((d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> x) -> PhysicalSystemT d q p m x
 physicalSystem f = PhysicalSystemT . ReaderT $ f2
   where
-    f2 (dqdp , d) = state $ \qp -> (f dqdp d qp, qp)
+    f2 (dFunc , d) = state $ \qp -> (f dFunc d qp, qp)
 
-runPhysicalSystemT :: (Monad m) => (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystemT d q p m x -> m x
-runPhysicalSystemT (dqdtFunc, dpdtFunc) d (q, p) (PhysicalSystemT system)
+runPhysicalSystemT :: (Monad m)
+  => PhysicalSystemT d q p m x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> m x
+runPhysicalSystemT (PhysicalSystemT system) (dqdtFunc, dpdtFunc) d (q, p)
   = evalStateT (runReaderT system ((dqdtFunc, dpdtFunc), d)) (q, p)
+
+flipRunPhysicalSystemT :: (Monad m)
+  => (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystemT d q p m x -> m x
+flipRunPhysicalSystemT = (flip .) . flip . flip runPhysicalSystemT
+
 
 type PhysicalSystem d q p x = PhysicalSystemT d q p Identity x
 
-runPhysicalSystem :: (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystem d q p x -> x
-runPhysicalSystem (dqdtFunc, dpdtFunc) d (q, p) system
-  = runIdentity $ runPhysicalSystemT (dqdtFunc, dpdtFunc) d (q, p) system
+runPhysicalSystem :: PhysicalSystem d q p x -> (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> x
+runPhysicalSystem system (dqdtFunc, dpdtFunc) d (q, p)
+  = runIdentity $ runPhysicalSystemT system (dqdtFunc, dpdtFunc) d (q, p)
+
+flipRunPhysicalSystem :: (d -> (q, p) -> Diff q, d -> (q, p) -> Diff p) -> d -> (q, p) -> PhysicalSystem d q p x -> x
+flipRunPhysicalSystem = (flip .) . flip . flip runPhysicalSystem

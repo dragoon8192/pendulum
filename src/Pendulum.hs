@@ -1,6 +1,6 @@
 module Pendulum (
-  Pendulum,runPendulum,
-  PendulumT, runPendulumT,
+  Pendulum, runPendulum, flipRunPendulum,
+  PendulumT, runPendulumT, flipRunPendulumT,
   module PhysicalSystem
 )where
 import PhysicalSystem
@@ -10,12 +10,16 @@ type PendulumT m = PhysicalSystemT (Double,Double) Double Double m
 type Pendulum = PendulumT Identity
 
 --pendulum :: (Monad m) => ((Double, Double) -> x) -> PendulumT m x
---pendulum 
+--pendulum f = physicalSystem
 
-runPendulumT :: (Monad m) => (Double, Double) -> (Double, Double) -> PendulumT m x -> m x
-runPendulumT = runPhysicalSystemT (dqdt, dpdt)
+runPendulumT :: (Monad m) => PendulumT m x -> (Double, Double) -> (Double, Double) -> m x
+runPendulumT = flip runPhysicalSystemT (dqdt, dpdt)
   where
     dqdt (m, l) (q, p) = p / (m * l * l)
     dpdt (m, l) (q, p) = - m * 9.8 * l * sin q
-runPendulum :: (Double, Double) -> (Double, Double) -> Pendulum x -> x
-runPendulum (m, l) (q, p) x = runIdentity $ runPendulumT (m, l) (q, p) x
+flipRunPendulumT :: (Monad m) => (Double, Double) -> (Double, Double) -> PendulumT m x -> m x
+flipRunPendulumT = flip . flip runPendulumT
+
+runPendulum :: Pendulum x -> (Double, Double) -> (Double, Double) -> x
+runPendulum pmx (m, l) (q, p) = runIdentity $ runPendulumT pmx (m, l) (q, p)
+flipRunPendulum = flip . flip runPendulum
