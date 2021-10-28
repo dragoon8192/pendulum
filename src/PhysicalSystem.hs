@@ -52,12 +52,12 @@ class (MonadState (Q s,P s) s, MonadReader ((Data s -> (Q s, P s) -> Diff (Q s),
   evolQ :: DTime s -> s ()
   evolQ dt = do
     dqdt <- getDqDt
-    modify $ first (.+^ dt *^ dqdt)
+    modify' $ first (.+^ dt *^ dqdt)
     --modify . first . flip (.+^) . (dt *^) =<< getDqDt
   evolP :: DTime s -> s ()
   evolP dt = do
     dpdt <- getDpDt
-    modify $ second (.+^ dt *^ dpdt)
+    modify' $ second (.+^ dt *^ dpdt)
   -- symplectic evolution
   symplecticEvol1 :: DTime s -> s ()
   symplecticEvol1 dt = do
