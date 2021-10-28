@@ -1,7 +1,10 @@
 module PhysicalSystem (
   PhysicalSystem,
   runPhysicalSystem,
+  askData,
   getPhase,
+  getQ,
+  getP,
   getDiffPhase,
   symplecticEvol1
 ) where
