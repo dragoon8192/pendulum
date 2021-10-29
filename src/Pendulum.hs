@@ -7,6 +7,7 @@ module Pendulum (
 )where
 import PhysicalSystem
 import Data.Functor.Identity
+import Data.Tuple.Extra
 
 type PendulumT m = PhysicalSystemT (Double,Double) Double Double m
 type Pendulum = PendulumT Identity
@@ -30,8 +31,12 @@ type Pendulum2 = Pendulum2T Identity
 runPendulum2T :: (Monad m) => Pendulum2T m x -> ((Double, Double), (Double, Double)) -> ((Double, Double), (Double, Double)) -> m x
 runPendulum2T = flip runPhysicalSystemT (dqdt, dpdt)
   where
-    dqdt ((m1, m2), (l1, l2)) (_, (p1, p2)) = (p1 / ((m1 + m2) * l1 * l1), p2 / (m2 * l2 * l2))
-    dpdt ((m1, m2), (l1, l2)) ((q1, q2), _) = (- (m1 + m2) * 9.8 * l1 * sin q1, - m2 * 9.8 * l2 * sin q2)
+    dqdt (ms, ls) (_, ps) = f <@$> mass' ms <@*> ls <@*> ps
+    dpdt (ms, ls) (qs, _) = g <@$> mass' ms <@*> ls <@*> qs
+    mass' (m1, m2) = (m1 + m2, m2)
+    f m l p = p / (m * l * l)
+    g m l q = - m * 9.8 * l * sin q
+
 flipRunPendulum2T :: (Monad m) => ((Double, Double), (Double, Double)) -> ((Double, Double), (Double, Double)) -> Pendulum2T m x -> m x
 flipRunPendulum2T = flip . flip runPendulum2T
 
