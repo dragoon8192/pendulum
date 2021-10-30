@@ -4,37 +4,38 @@ PictureShowM(getPicture),
 import Pendulum
 import Graphics.Gloss
 import Graphics.Gloss.Data.PointedPictures
+import Data.Tuple.Extra
 
-scaleL = (100.0 *)
-scaleM = (10 *) . sqrt
+scaleL = realToFrac . (100.0 *)
+scaleM = realToFrac . (10 *) . sqrt
+
+toXY l q = (scaleL (l * sin q), - scaleL (l * cos q))
+
+pendulumToPicture m l q = pictures [
+  line [(0,0), (x,y)],
+  translate x y . circleSolid . scaleM $ m
+  ]
+    where
+      (x, y) = toXY l q
 
 instance PictureShowM Pendulum where
   getPicture = do
     (m, l) <- askData
-    let pixelM = scaleM m
-    let pixelL = scaleL l
     q <- getQ
-    let (x,y) = (realToFrac (pixelL * sin q), realToFrac (- pixelL * cos q))
-    let theta = realToFrac $ q * 180.0 / pi
+    let (x,y) = (realToFrac (l * sin q), realToFrac (- l * cos q))
+    --let theta = realToFrac $ q * 180.0 / pi
     return $ pictures [
               line [(0, 0), (x, y)],
-              translate x y . circleSolid . realToFrac $ pixelM
+              translate x y . circleSolid . scaleM $ m
               ]
 
 instance PictureShowM Pendulum2 where
   getPicture = do
-    ((m1, m2), (l1, l2)) <- askData
-    let pixelM1 = scaleM m1
-    let pixelM2 = scaleM m2
-    let pixelL1 = scaleL l1
-    let pixelL2 = scaleL l2
-    (q1, q2) <- getQ
-    let (x1,y1) = (realToFrac (pixelL1 * sin q1), realToFrac (- pixelL1 * cos q1))
-    let (x2,y2) = (realToFrac (pixelL2 * sin q2), realToFrac (- pixelL2 * cos q2))
-    let theta1 = realToFrac $ q1 * 180.0 / pi
-    let theta2 = realToFrac $ q2 * 180.0 / pi
-    return $ pictures [
-              line [(0, 0), (x1, y1), (x1 + x2, y1 + y2)],
-              translate x1 y1 . circleSolid . realToFrac $ pixelM1,
-              translate (x1 + x2) (y1 + y2) . circleSolid . realToFrac $ pixelM2
-              ]
+    (ms, ls) <- askData
+    qs <- getQ
+    let xys@(xy1, xy2) = toXY <@$> ls <@*> qs
+    let (pic1,pic2) = pendulumToPicture <@$> ms <@*> ls <@*> qs
+    return $ toPictures [
+      (pic1, xy1, 0),
+      (pic2, xy2, 0)
+      ]
