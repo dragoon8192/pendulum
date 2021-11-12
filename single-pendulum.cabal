@@ -30,11 +30,12 @@ library
       Graphics.Gloss.Data.PointedPictures
       Lib
       Pendulum
-      Pendulum.View
       Pendulum2
-      Pendulum2.View
       PendulumN
       PhysicalSystem
+      View.Pendulum
+      View.Pendulum2
+      View.PendulumN
   other-modules:
       Paths_single_pendulum
   hs-source-dirs:

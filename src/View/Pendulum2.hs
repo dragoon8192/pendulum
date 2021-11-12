@@ -1,11 +1,10 @@
-module Pendulum2.View (
+module View.Pendulum2(
 PictureShowM(getPicture),
 ) where
 import Pendulum2
-import Graphics.Gloss
 import Graphics.Gloss.Data.PointedPictures
 import Data.Tuple.Extra
-import Pendulum.View
+import View.Pendulum
 
 instance PictureShowM Pendulum2 where
   getPicture = do

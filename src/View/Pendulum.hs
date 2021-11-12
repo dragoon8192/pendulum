@@ -1,4 +1,4 @@
-module Pendulum.View (
+module View.Pendulum (
   scaleL, scaleM, toXY, pendulumToPicture,
   PictureShowM(getPicture),
 ) where

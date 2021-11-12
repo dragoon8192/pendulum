@@ -1,7 +1,7 @@
 module Main where
 
 import Pendulum2
-import Pendulum2.View
+import View.Pendulum2
 import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
 
