@@ -1,13 +1,12 @@
 module Main where
 
-import Pendulum
-import Pendulum.View
+import Pendulum2
+import Pendulum2.View
 import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
 
 window :: Display
 window = InWindow "double-pendulum" (640, 640) (0,0)
-
 
 main :: IO ()
 main = simulate window white step init getPic evol
