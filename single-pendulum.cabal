@@ -33,6 +33,7 @@ library
       Pendulum.View
       Pendulum2
       Pendulum2.View
+      PendulumN
       PhysicalSystem
   other-modules:
       Paths_single_pendulum
