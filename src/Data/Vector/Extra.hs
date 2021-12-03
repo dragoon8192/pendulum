@@ -1,16 +1,20 @@
+{-# LANGUAGE Strict #-}
+{-# LANGUAGE StrictData #-}
 module Data.Vector.Extra (
-  zipV,zipV3,vector,innerList,
+  sumV,zipV,zipV3,vector,innerList,
   Vector(Vector)
 ) where
-import Data.AdditiveGroup
-import Data.AffineSpace
-import Data.VectorSpace
+import Data.AdditiveGroup ( AdditiveGroup(negateV, zeroV, (^+^)) )
+import Data.AffineSpace ( AffineSpace(..) )
+import Data.VectorSpace ( VectorSpace(..) )
 
-newtype Vector a = Vector { innerList :: [a] }
+data Vector a = Vector { innerList :: ![a] }
 
 vector :: [a] -> Vector a
 vector = Vector
 
+sumV :: (Num a) => Vector a -> a
+sumV (Vector as) = sum as
 
 zipV :: Vector a -> Vector b -> Vector (a,b)
 zipV (Vector as) (Vector bs) = Vector $ zip as bs
@@ -22,7 +26,7 @@ instance Functor Vector where
   fmap f (Vector as) = Vector $ map f as
 
 instance Applicative Vector where
-  pure a = Vector [a]
+  pure a = Vector . repeat $ a
   (<*>) (Vector fs) (Vector as) = Vector $ zipWith ($) fs as
 
 instance (AdditiveGroup a) => AdditiveGroup (Vector a) where

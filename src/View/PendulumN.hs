@@ -1,7 +1,9 @@
 module View.PendulumN(
-PictureShowM(getPicture),
+  getPictureWithEnergy,
+  PictureShowM(getPicture),
 ) where
 import PendulumN
+import Graphics.Gloss
 import Graphics.Gloss.Data.PointedPictures
 import Data.Vector.Extra
 import View.Pendulum
@@ -15,3 +17,9 @@ instance PictureShowM PendulumN where
     let vPic = pendulumToPicture <$> vm <*> vl <*> vq
     let pics = innerList vPic
     return . toPictures $ zip3 pics xys [0..]
+
+getPictureWithEnergy = do
+  pic <- getPicture
+  e <- hamiltonian
+  let picText = scale 0.25 0.25 . text . show $ e
+  return $ pictures [pic, picText]

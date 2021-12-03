@@ -13,13 +13,14 @@ main :: IO ()
 main = simulate window white step init getPic evol
     where
       step = 30
-      vq = vector [pi/6.0, pi/3.0]
-      vp = vector [0..]
+      n = 3
+      vq = vector . take n $ cycle [pi/3.0, pi/4.0, pi/5.0]
+      vp = vector . replicate n $ 0
       init = (vq, vp)
-      vm = vector [1.0, 1.0]
-      vl = vector [1.0, 1.0]
+      vm = vector . replicate n $ 1.0
+      vl = vector . replicate n $ 1.0
       ml = (vm, vl)
-      getPic pq = flipRunPendulumN ml pq getPicture
+      getPic pq = flipRunPendulumN ml pq getPictureWithEnergy
       evol _ dt pq = flipRunPendulumN ml pq $ do
         symplecticEvol1 . realToFrac $ dt
         getPhase
