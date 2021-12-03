@@ -25,16 +25,13 @@ source-repository head
 
 library
   exposed-modules:
-      Data.Tuple.Extra
       Data.Vector.Extra
+      Graphics.Gloss.Data.PictureShow
       Graphics.Gloss.Data.PointedPictures
-      Lib
       Pendulum
-      Pendulum2
       PendulumN
       PhysicalSystem
       View.Pendulum
-      View.Pendulum2
       View.PendulumN
   other-modules:
       Paths_single_pendulum

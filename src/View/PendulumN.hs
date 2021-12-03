@@ -5,6 +5,7 @@ module View.PendulumN(
 import PendulumN
 import Graphics.Gloss
 import Graphics.Gloss.Data.PointedPictures
+import Graphics.Gloss.Data.PictureShow
 import Data.Vector.Extra
 import View.Pendulum
 

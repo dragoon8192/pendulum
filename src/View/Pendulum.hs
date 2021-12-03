@@ -4,7 +4,7 @@ module View.Pendulum (
 ) where
 import Pendulum
 import Graphics.Gloss
-import Graphics.Gloss.Data.PointedPictures
+import Graphics.Gloss.Data.PictureShow
 
 scaleL = realToFrac . (100.0 *)
 scaleM = realToFrac . (10 *) . sqrt
