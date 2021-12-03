@@ -1,5 +1,3 @@
-{-# LANGUAGE Strict #-}
-{-# LANGUAGE StrictData #-}
 module Data.Vector.Extra (
   Vector,zipV,vector,toList
 ) where
