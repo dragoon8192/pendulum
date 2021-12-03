@@ -1,33 +1,45 @@
 {-# LANGUAGE Strict #-}
 {-# LANGUAGE StrictData #-}
 module Data.Vector.Extra (
-  sumV,zipV,zipV3,vector,innerList,
-  Vector(Vector)
+  Vector,zipV,vector,toList
 ) where
 import Data.AdditiveGroup ( AdditiveGroup(negateV, zeroV, (^+^)) )
 import Data.AffineSpace ( AffineSpace(..) )
 import Data.VectorSpace ( VectorSpace(..) )
 
-data Vector a = Vector { innerList :: ![a] }
+data Vector a = Nil | !a :! !(Vector a) | Repeat !a
+
+instance Foldable Vector where
+  foldr f b (a :! va) = f a $ foldr f b va
+  foldr _ b Nil = b
+  foldr f b (Repeat a) = f a $ foldr f b (Repeat a)
 
 vector :: [a] -> Vector a
-vector = Vector
+vector = foldr (:!) Nil
 
-sumV :: (Num a) => Vector a -> a
-sumV (Vector as) = sum as
+toList :: Vector a -> [a]
+toList = foldr (:) []
 
 zipV :: Vector a -> Vector b -> Vector (a,b)
-zipV (Vector as) (Vector bs) = Vector $ zip as bs
+zipV (a :! va) (b :! vb) = (a, b) :! zipV va vb
+zipV (Repeat a) (b :! vb) = (a, b) :! zipV (Repeat a) vb
+zipV (a :! va) (Repeat b) = (a, b) :! zipV va (Repeat b)
+zipV (Repeat a) (Repeat b) = Repeat (a, b)
+zipV Nil _ = Nil
+zipV _ Nil = Nil
 
-zipV3 :: Vector a -> Vector b -> Vector c -> Vector (a,b,c)
-zipV3 (Vector as) (Vector bs) (Vector cs) = Vector $ zip3 as bs cs
 
 instance Functor Vector where
-  fmap f (Vector as) = Vector $ map f as
+  fmap f (a :! va) = f a :! fmap f va
+  fmap f (Repeat a) = Repeat (f a)
+  fmap _ Nil = Nil
+
+zipWithV :: (a -> b -> c) -> Vector a -> Vector b -> Vector c
+zipWithV f va vb = uncurry f <$> zipV va vb
 
 instance Applicative Vector where
-  pure a = Vector . repeat $ a
-  (<*>) (Vector fs) (Vector as) = Vector $ zipWith ($) fs as
+  pure a = Repeat a
+  (<*>) vf va = zipWithV ($) vf va
 
 instance (AdditiveGroup a) => AdditiveGroup (Vector a) where
   zeroV = pure zeroV

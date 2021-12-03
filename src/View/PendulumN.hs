@@ -13,9 +13,9 @@ instance PictureShowM PendulumN where
     (vm, vl) <- askData
     vq <- getQ
     let vxy = toXY <$> vl <*> vq
-    let xys = innerList vxy
+    let xys = toList vxy
     let vPic = pendulumToPicture <$> vm <*> vl <*> vq
-    let pics = innerList vPic
+    let pics = toList vPic
     return . toPictures $ zip3 pics xys [0..]
 
 getPictureWithEnergy = do

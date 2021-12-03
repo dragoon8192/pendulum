@@ -10,14 +10,14 @@ import Data.Vector.Extra
 import Data.List
 
 mass :: (Num a) => Vector a -> Vector a
-mass (Vector vs) = Vector $ map sum $ tails vs
+mass = vector . map sum . tails . toList
 
 hamiltonian :: PendulumN Double
 hamiltonian = do
   vml@(vm, vl) <- askData
   vqp@(vq, vp) <- getPhase
   let ve = h <$> mass vm <*> vl <*> vq <*> vp
-  return $! sumV ve
+  return $ sum ve
     where
       h m l q p = p * p / (2 * m * l * l) - m * 9.8 * l * cos q
 
